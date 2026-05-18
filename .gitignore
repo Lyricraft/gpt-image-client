@@ -1,0 +1,17 @@
+node_modules/
+dist/
+out/
+.env
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+run/
+
+# OS
+.DS_Store
+Thumbs.db

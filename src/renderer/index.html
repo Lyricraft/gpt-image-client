@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: local-img:"
+  />
+  <title>GPT Image</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo">GPT Image</span>
+        <button id="btnNewConv" class="icon-btn" title="新对话">+</button>
+      </div>
+      <div id="convList" class="conv-list"></div>
+      <div class="sidebar-footer">
+        <button id="btnSettings" class="text-btn">⚙ 设置</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main id="main">
+      <!-- Empty state -->
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">🖼</div>
+        <p>选择一个对话或新建一个</p>
+      </div>
+
+      <!-- Chat view -->
+      <div id="chatView" class="chat-view hidden">
+        <!-- Header -->
+        <div class="chat-header">
+          <span id="convTitle" class="chat-title"></span>
+          <div class="chat-header-actions">
+            <select id="providerSelect" class="provider-select"></select>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chatMessages" class="chat-messages"></div>
+
+        <!-- Input area -->
+        <div class="input-area">
+          <!-- Rewrite indicator -->
+          <div id="rewriteIndicator" class="rewrite-indicator hidden">
+            ✏ 改写模式 — 将在当前消息中新增分支
+            <button id="btnCancelRewrite" class="text-btn">取消</button>
+          </div>
+
+          <!-- Params panel -->
+          <div id="paramsPanel" class="params-panel hidden">
+            <div class="params-row">
+              <div class="params-size-group">
+                <button id="btnToggleSizeMode" class="size-mode-btn" title="切换尺寸模式">📐</button>
+                <button id="btnToggleOrientation" class="size-mode-btn" title="切换横纵">⟷</button>
+                <div class="size-controls" id="presetSizeGroup">
+                  <label>比例
+                    <select id="paramRatio">
+                      <option value="1:1">1:1</option>
+                      <option value="4:3">4:3</option>
+                      <option value="3:4">3:4</option>
+                      <option value="16:9">16:9</option>
+                      <option value="9:16">9:16</option>
+                    </select>
+                  </label>
+                  <label>分辨率
+                    <select id="paramResolution">
+                      <option value="1k">1K</option>
+                      <option value="1.5k">1.5K</option>
+                      <option value="2k">2K</option>
+                    </select>
+                  </label>
+                  <span class="size-preview" id="sizePreview">1024×1024</span>
+                </div>
+                <div class="size-controls hidden" id="customSizeGroup">
+                  <input type="number" id="paramWidth" value="1024" min="64" max="8192" />
+                  <span class="size-sep">×</span>
+                  <input type="number" id="paramHeight" value="1024" min="64" max="8192" />
+                  <span class="size-note">64-8192 px</span>
+                </div>
+              </div>
+              <label>质量 <select id="paramQuality">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="auto">Auto</option>
+              </select></label>
+              <label>格式 <select id="paramFormat">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WebP</option>
+              </select></label>
+              <label>数量 <input type="number" id="paramN" value="1" min="1" max="10" /></label>
+            </div>
+          </div>
+
+          <!-- Uploaded images -->
+          <div id="inputImages" class="input-images"></div>
+
+          <!-- Text input row -->
+          <div class="input-row">
+            <button id="btnUpload" class="icon-btn" title="上传图片">📎</button>
+            <button id="btnToggleParams" class="icon-btn" title="参数">⚙</button>
+            <textarea
+              id="textInput"
+              class="text-input"
+              rows="1"
+              placeholder="输入提示词... (Enter 发送, Shift+Enter 换行)"
+            ></textarea>
+            <button id="btnSend" class="send-btn" title="发送">➤</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox hidden">
+    <span class="lightbox-close">&times;</span>
+    <span id="lbPrev" class="lb-nav">‹</span>
+    <span id="lbNext" class="lb-nav">›</span>
+    <div class="lb-top">
+      <span id="lbCounter"></span>
+      <button id="lbSelectBtn" class="lb-sel-btn hidden">选中</button>
+    </div>
+    <img class="lightbox-img" id="lightboxImg" alt="" />
+    <div class="lightbox-actions">
+      <button id="btnSaveImage" class="text-btn">💾 保存</button>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div id="settingsModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>设置</h3>
+        <button class="icon-btn modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-tabs">
+          <button class="modal-tab active" data-tab="providers">提供方</button>
+          <button class="modal-tab" data-tab="prefs">偏好</button>
+        </div>
+
+        <!-- Providers tab -->
+        <div class="modal-tab-content active" id="settingsProviders">
+          <div id="providerList"></div>
+          <button id="btnAddProvider" class="text-btn">+ 添加提供方</button>
+        </div>
+
+        <!-- Preferences tab -->
+        <div class="modal-tab-content" id="settingsPrefs">
+          <div class="form-row">
+            <label>超时 (秒)</label>
+            <input type="number" id="prefTimeout" value="600" min="30" />
+          </div>
+          <button id="btnSavePrefs" class="btn-primary">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider editor (inline inside modal) -->
+  <div id="providerEditor" class="modal-overlay hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3 id="providerEditorTitle">编辑提供方</h3>
+        <button class="icon-btn modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row"><label>展示名</label><input id="peName" /></div>
+        <div class="form-row"><label>API Base URL</label><input id="peBaseURL" placeholder="https://api.openai.com/v1" /></div>
+        <div class="form-row"><label>API Key</label><input id="peApiKey" type="password" /></div>
+        <button id="btnSaveProvider" class="btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context menu -->
+  <div id="ctxMenu" class="ctx-menu hidden">
+    <div class="ctx-item" data-action="save">💾 保存到本地</div>
+    <div class="ctx-item" data-action="delete">🗑 删除</div>
+  </div>
+
+  <!-- Alert modal -->
+  <div id="alertModal" class="modal-overlay hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3 id="alertTitle">提示</h3>
+      </div>
+      <div class="modal-body">
+        <p id="alertMsg"></p>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button id="alertOk" class="btn-primary">确定</button>
+          <button id="alertCancel" class="btn" style="display:none">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
