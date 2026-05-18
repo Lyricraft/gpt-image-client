@@ -761,7 +761,7 @@ async function handleRetry(turnIndex) {
   }
 }
 
-function handleRewrite(turnIndex) {
+async function handleRewrite(turnIndex) {
   const turn = state.activeConv?.turns[turnIndex];
   if (!turn) return;
   const branch = turn.branches[turn.activeBranchIndex];
@@ -778,7 +778,29 @@ function handleRewrite(turnIndex) {
     syncParamsUI();
   }
 
+  // Load branch's uploaded images into the input area
   clearUploadedImages();
+  const brUploaded = branch?.uploadedImages || turn.uploadedImages || [];
+  for (const u of brUploaded) {
+    if (u.path) {
+      state.uploadedImages.push({ id: uid(), path: u.path });
+    } else if (u.fromGenerated) {
+      // Resolve auto-referenced previous-turn image to a real file path
+      const conv = state.activeConv;
+      if (conv) {
+        const srcTurn = conv.turns[u.sourceTurnIndex];
+        if (srcTurn) {
+          const sel = getSelectedImage(srcTurn);
+          if (sel?.fileName) {
+            const filePath = await getImageTempPath(sel, conv.id);
+            if (filePath) state.uploadedImages.push({ id: uid(), path: filePath });
+          }
+        }
+      }
+    }
+  }
+  renderInputImages();
+
   dom.rewriteIndicator.classList.remove("hidden");
   dom.textInput.focus();
   scrollToBottom();
@@ -1762,6 +1784,7 @@ function bindEvents() {
     cancelRewrite();
     dom.textInput.value = "";
     autoResize(dom.textInput);
+    clearUploadedImages();
   });
 
   // Provider select
