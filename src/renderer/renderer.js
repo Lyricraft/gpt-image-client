@@ -834,9 +834,18 @@ function selectImage(turnIndex, imgIndex, images) {
 // Context menu
 // ============================================================
 function showCtxMenu(x, y) {
-  dom.ctxMenu.style.left = x + "px";
-  dom.ctxMenu.style.top = y + "px";
-  dom.ctxMenu.classList.remove("hidden");
+  const menu = dom.ctxMenu;
+  // Restore default items (showPromptMenu may have replaced innerHTML)
+  menu.innerHTML = `
+    <div class="ctx-item" data-action="save">💾 保存到本地</div>
+    <div class="ctx-item" data-action="delete">🗑 删除</div>
+  `;
+  menu.querySelectorAll(".ctx-item").forEach((item) => {
+    item.addEventListener("click", () => handleCtxAction(item.dataset.action));
+  });
+  menu.style.left = x + "px";
+  menu.style.top = y + "px";
+  menu.classList.remove("hidden");
 }
 
 function hideCtxMenu() {
