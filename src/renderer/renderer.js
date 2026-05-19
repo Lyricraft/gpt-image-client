@@ -1679,9 +1679,21 @@ function bindEvents() {
     }
   });
   dom.textInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.isComposing) {
       e.preventDefault();
       handleSend();
+      return;
+    }
+    // Shift/Ctrl/Alt + Enter → insert newline
+    if (e.key === "Enter" && (e.shiftKey || e.ctrlKey || e.altKey)) {
+      e.preventDefault();
+      const ta = dom.textInput;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      ta.value = ta.value.substring(0, start) + "\n" + ta.value.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + 1;
+      autoResize(ta);
+      autoSaveDraft();
     }
   });
   dom.textInput.addEventListener("input", () => {
@@ -1858,22 +1870,28 @@ function bindEvents() {
   });
   dom.btnSaveImage.addEventListener("click", async () => {
     const entry = lbState.images[lbState.index];
-    if (!entry) return;
+    if (!entry) { showToast("没有可保存的图片", "error"); return; }
     const img = entry.img;
+    if (!img.fileName && !img.b64_json && !img.path) {
+      return showToast("图片数据不完整，无法保存", "error");
+    }
     let b64 = img.b64_json;
     if (!b64 && img.fileName) {
+      if (!state.activeConvId) return showToast("未选择对话", "error");
       const res = await window.electronAPI.loadImageBase64(
         state.activeConvId,
         img.fileName
       );
-      if (res.success) b64 = res.base64;
+      if (res.success) { b64 = res.base64; }
+      else { showToast("读取图片文件失败: " + (res.error || "未知错误"), "error"); }
     }
     if (!b64 && img.path) {
       const res = await window.electronAPI.readFileBase64(img.path);
-      if (res.success) b64 = res.base64;
+      if (res.success) { b64 = res.base64; }
+      else { showToast("读取图片路径失败: " + (res.error || "未知错误"), "error"); }
     }
     if (b64) {
-      window.electronAPI.saveImageDialog(b64, `gpt-image-${Date.now()}.png`);
+      await window.electronAPI.saveImageDialog(b64, `gpt-image-${Date.now()}.png`);
     }
   });
 
