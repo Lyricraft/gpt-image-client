@@ -7,8 +7,7 @@ Electron 桌面应用，基于 OpenAI GPT-Image-2 API 的图像生成客户端�
 - 主语言：JavaScript (CommonJS)
 - 框架：Electron 42 + 纯前端（无 React/Vue）
 - 图像 API：OpenAI SDK v6（`openai` npm 包）
-- 项目位置：`E:\项目与动向\gpt-image`
-- 运行目录：`run/`（gitignored，首次使用从 `run-example/` 复制）
+- 运行目录：`run/`（gitignored）
 
 ## 读文档顺序
 
@@ -23,7 +22,6 @@ Electron 桌面应用，基于 OpenAI GPT-Image-2 API 的图像生成客户端�
 
 ```bash
 npm start          # 启动应用
-npm run dev        # 开发模式
 ```
 
 ## 关键文件
@@ -40,7 +38,6 @@ npm run dev        # 开发模式
 
 ## 运行说明
 
-1. 确保 `run/.env` 存在（可从 `run-example/` 复制）
-2. 确保 API Key 有效
-3. `npm start` 启动
-4. 首次使用需在设置中添加 API 提供方
+1. 确保 API Key 有效
+2. `npm start` 启动
+3. 首次使用需在设置中添加 API 提供方

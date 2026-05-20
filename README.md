@@ -26,12 +26,6 @@ npm start
 
 `run/` 目录已在 `.gitignore` 中，配置不会误提交。
 
-## 开发
-
-```bash
-npm run dev
-```
-
 ## 架构
 
 ```
