@@ -14,16 +14,15 @@
 | 文档 | 内容 | 受众 |
 |------|------|------|
 | `AGENTS.md` | 入口引导，告诉新 agent 读哪些文档 | 新 agent |
-| `docs/ARCHITECTURE.md` | 整体架构、文件职责、关键路径 | 开发者 |
+| `docs/ARCHITECTURE.md` | 整体架构 + 核心工作流（发送/重试/改写/删除/中止） | 开发者 |
 | `docs/DATA-MODEL.md` | 数据结构、持久化规则 | 开发者 |
 | `docs/IPC.md` | IPC 通道参考 | 开发者 |
-| `docs/WORKFLOWS.md` | 核心工作流（发送/重试/改写/删除/中止） | 开发者 |
 | `docs/SUCCESSION.md` | 传承计划本身的方法论 | 维护者 |
 
 ### 2. 文档原则
 
 - **准确**：反映当前实现，非理想设计
-- **具体**：函数名、行号范围、文件大小（如 renderer.js 1985 行）
+- **具体**：函数名、模块名、文件大小（如 events.js ~285 行）
 - **完整**：覆盖所有 IPC、所有状态、所有关键路径
 - **简洁**：能用表格不用段落
 
@@ -31,9 +30,9 @@
 
 1. 读 `AGENTS.md` → 了解项目全貌
 2. 读 `docs/ARCHITECTURE.md` → 了解架构
-3. 按需读 `docs/DATA-MODEL.md` / `docs/IPC.md` / `docs/WORKFLOWS.md`
+3. 按需读 `docs/DATA-MODEL.md` / `docs/IPC.md`（工作流已合并到 `docs/ARCHITECTURE.md`）
 4. 读关键源文件（按复杂度排序）：
-   - `src/renderer/renderer.js`（最大，~1985 行）
+   - `src/renderer/events.js`（入口，~285 行）
    - `main.js`（~315 行）
    - `src/main/conversation-store.js`（~130 行）
 5. 需要改图片存储协议 → 读 `main.js` 中 `protocol.handle("local-img")`
@@ -68,7 +67,27 @@
 - IME 输入法中 Enter 不触发发送
 - 右键菜单不被 prompt 菜单污染
 
-### 5. 下一次传承触发条件
+### 5. 重构记录（2026-05-20）
+
+**renderer.js 模块拆分**：
+- `renderer.js`（1986 行单体）拆分为 13 个模块，总计 ~2037 行
+- 模块按职责划分：`state.js` / `utils.js` / `params.js` / `ui.js` / `providers.js` / `upload.js` / `lightbox.js` / `conversations.js` / `chat-renderer.js` / `settings.js` / `send.js` / `branches.js` / `events.js`
+- 保持 `<script>` 标签加载 + `App.*` 命名空间模式
+
+**修复的问题**：
+- 切换对话加锁（`_switching` 标志）
+- 跨对话请求追踪（`_activeRequestConvId`），stopRequest 停正确对话
+- `deleteConversation` 清理 drafts/conversationStates/unread
+- 分支上限 `MAX_BRANCHES_PER_TURN = 50`
+- `autoSaveDraft()` 函数缺失修复（原代码调用未定义函数）
+- `preload.js` 移除无用的 `abortRequest` requestId 参数
+
+**文档调整**：
+- `docs/WORKFLOWS.md` 合并到 `docs/ARCHITECTURE.md`
+- 所有文档中的 renderer.js 引用更新为模块名
+- 移除死代码：`$`/`$$`/`escapeHtml`/`getLastTurnActiveBranch`/`showAlert`
+
+### 6. 下一次传承触发条件
 
 - agent 自行感知上下文紧张
 - 用户提示"上下文忒长了"

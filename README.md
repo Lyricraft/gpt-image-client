@@ -30,7 +30,7 @@ npm start
 
 ```
 Renderer (沙箱)
-  index.html → renderer.js → styles.css
+  index.html → 13 个 JS 模块 (events.js/state.js/utils.js 等) → styles.css
        |
        | contextBridge IPC
        v

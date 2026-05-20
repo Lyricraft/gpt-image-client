@@ -52,5 +52,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   saveProviders: (providers) => ipcRenderer.invoke("provider:save", providers),
 
   // Abort
-  abortRequest: (requestId) => ipcRenderer.invoke("image:abort", requestId),
+  abortRequest: () => ipcRenderer.invoke("image:abort"),
 });
