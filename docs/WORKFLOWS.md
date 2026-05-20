@@ -2,82 +2,83 @@
 
 ## 文生图 / 编辑图
 
-入口：`handleSend()` (renderer.js:1070)
+入口：`handleSend()` (renderer.js:1090)
 
 ```
 1. 校验：provider → 空分支检查 → 确认框
-2. 创建 turn（首轮新 turn，改写模式复用现有）
-3. 构建 uploadedInTurn：
+2. 构建 uploadedInTurn：
    - 用户上传图 → 复制到 conv/uploaded/
    - 自动引用上一轮选中图 → { fromGenerated, sourceTurnIndex }
-4. 创建 branch → branch.loading = true
-5. saveConv() + renderChat() → loading spinner
-6. 确定 mainImagePath：
+3. 创建 branch（含 text/params/uploadedImages）：
+   ├─ 非改写: 创建新 turn + 首条 branch
+   └─ 改写:   往现有 turn 追加新 branch（不覆盖原 branch 数据）
+4. branch.loading = true → saveConv() + renderChat()
+5. 确定 mainImagePath：
    - 优先：用户上传的第一张
    - 其次：上一轮选中图（getImageTempPath → temp file）
    - 无 → 调 generateImage
-7. API 调用 → editImage / generateImage（含 AbortSignal）
-8. 成功后 storeImageBatch() → branch.images = [{ fileName }]
-9. saveConversation(conv) → 存盘
-10. 用户未切走 → renderChat()；切走 → unread dot
+6. API 调用 → editImage / generateImage（含 AbortSignal）
+7. 成功后 storeImageBatch() → branch.images = [{ fileName }]
+8. saveConversation(conv) → 存盘
+9. 用户未切走 → renderChat()；切走 → unread dot
 ```
 
 ## 重试
 
-入口：`handleRetry()` (renderer.js:607)
+入口：`handleRetry()` (renderer.js:651)
 
 ```
 1. 删除 branch.error（让 loading 显示）
 2. setSending(true) → 按钮变 ■
-3. resolveMainImage → 同 handleSend 逻辑
-4. API 调用
-5. 成功后新图片 unshift 到 branch.images 头部
+3. branch.loading = true → renderChat（已有图片保留，loading 显示在下方）
+4. resolveMainImage → 同 handleSend 逻辑，使用 branch 自身的 text/params
+5. API 调用
+6. 成功后新图片 unshift 到 branch.images 头部
    [旧1][旧2] → 重试 → [新1][新2][旧1][旧2]
-6. 更新 branch.selectedImageIndex = 0
+7. 更新 branch.selectedImageIndex = 0
 ```
+
+注意：重试中切走对话再回来后仍保持 loading 状态；请求完成且已切走时存盘 + 未读气泡。
 
 ## 改写
 
-入口：`handleRewrite()` (renderer.js:707)
+入口：`handleRewrite()` (renderer.js:761)
 
 ```
-1. 当前 turn 的 text/params 填入输入框
+1. 读取当前 branch 的 text/params/uploadedImages 填入输入区
 2. 进入 rewriteMode
-3. 用户修改后发送 → handleSend 检查 isRewrite
-4. 在当前 turn 新增 branch，不创建新 turn
+3. 用户修改后发送 → handleSend 检测到 isRewrite
+4. 在当前 turn 创建新 branch（含新 text/params/uploadedImages），不覆盖原 branch
 ```
 
 ## 分支切换
 
 - 每个 turn 显示 `◀ X/Y ▶` 箭头
+- 切换分支时渲染完整分支数据：提示词、参数、上传图、生成图
 - 最近 turn 可选中图片（点击角标）
-- 历史 turn 只读浏览
 
-## 删除分支
+## 删除保护
 
-入口：`handleDeleteBranch()` (renderer.js:854)
+入口：`handleDeleteBranch()` / `deleteImage()`
 
-```
-1. splice(activeBranchIndex, 1)
-2. 若 turn 还有分支 → activeBranchIndex = 第一个可用
-3. 若全删完 → splice(turnIndex, 1) 删整轮
-4. saveConv + renderChat
-```
+- **删除图片**：若该图片是选中图且被后轮引用（`fromGenerated`），则禁止删除
+- **删除分支**：若非末轮且有后轮引用该轮，则禁止删除
+- 右键菜单在不可删除时自动隐藏"删除本分支"选项
 
 ## 发送到新对话
 
-入口：`handleSendToNew()` (renderer.js:877)
+入口：`handleSendToNew()` (renderer.js:950)
 
 ```
 1. 创建新对话
-2. 收集：当前 text + params + 上传图副本 + 前轮选中图
+2. 收集：当前 branch 的 text + params + 上传图副本 + 前轮选中图
 3. setDraft(newConvId, { text, uploadedImages, params })
 4. switchConversation(newConvId) → loadDraft() 自动填入
 ```
 
 ## 请求中止
 
-入口：`stopRequest()` (renderer.js:843)
+入口：`stopRequest()` (renderer.js:1060)
 
 ```
 1. setSending(false) → 按钮恢复 ➤
@@ -87,7 +88,7 @@
 5. IPC 返回 { aborted: true } → handler 删除空 loading branch
 ```
 
-## 请求独立
+## 请求独立管理
 
 - `state.conversationStates[convId].sending` 独立管理
 - 切换对话时：saveDraft + loadDraft + 更新按钮状态

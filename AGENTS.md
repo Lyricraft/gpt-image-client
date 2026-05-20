@@ -28,7 +28,7 @@ npm start          # 启动应用
 
 | 文件 | 行数 | 说明 |
 |------|------|------|
-| `src/renderer/renderer.js` | ~1880 | 全部 UI 逻辑（最大文件） |
+| `src/renderer/renderer.js` | ~1985 | 全部 UI 逻辑（最大文件） |
 | `main.js` | ~315 | 主进程（窗口+IPC+协议） |
 | `src/renderer/styles.css` | ~1050 | 深色主题样式 |
 | `src/main/image-service.js` | ~128 | OpenAI API 封装 |

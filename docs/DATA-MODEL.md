@@ -28,6 +28,7 @@ state = {
 
 ```js
 // run/conversations/{id}.json
+// 注意: text/params/uploadedImages 在 branch 级别，不在 turn 级别
 {
   id: "uuid",
   title: "新对话",
@@ -36,21 +37,22 @@ state = {
   turns: [
     {
       id: "t_xxx",
-      text: "一只橘猫",
-      uploadedImages: [
-        // 上传的参考图（路径或生成的引用）
-        { id: "prev", path: null, isMain: true, fromGenerated: true, sourceTurnIndex: 0 },
-        { id: "xxx",  path: "E:/.../uploaded/xxx.png", isMain: false },
-      ],
-      params: {           // n 存盘时被剥离，加载时清理
-        size: "1024x1024",
-        quality: "high",
-        output_format: "png",
-      },
       branches: [
         {
           id: "b_xxx",
-          images: [
+          text: "一只橘猫",            // 提示词（branch 级别）
+          params: {                   // 生成参数（branch 级别）
+            size: "1024x1024",
+            quality: "high",
+            output_format: "png",
+          },                          // branch.params.n 存盘时被剥离
+          uploadedImages: [           // 上传的参考图（branch 级别）
+            // 自动引用的上一轮选中图
+            { id: "prev", path: null, isMain: true, fromGenerated: true, sourceTurnIndex: 0 },
+            // 用户手动上传的图片（复制到 conv 目录后的路径）
+            { id: "xxx",  path: "E:/.../uploaded/xxx.png", isMain: false },
+          ],
+          images: [                   // 生成的结果图片
             {
               index: 0,
               id: "img_xxx",
@@ -85,5 +87,5 @@ state = {
 
 `conversation-store.js` 的 `save()` 和 `get()` 自动清理：
 - `branch.loading` — 删除（transient UI state）
-- `turn.params.n` — 删除（历史不记录 n）
+- `branch.params.n` — 删除（历史不记录 n）
 - `branch.error` — 不清理（保留错误信息供重试）

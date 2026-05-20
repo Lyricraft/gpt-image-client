@@ -10,7 +10,7 @@
 
 ```
 ┌───────────── Renderer (安全沙箱) ─────────────┐
-│  index.html  →  renderer.js (1878行)           │
+│  index.html  →  renderer.js (1985行)           │
 │  styles.css (1054行)                           │
 │       │ window.electronAPI.xxx()               │
 │       ▼                                        │
@@ -52,12 +52,12 @@
 ### src/main/conversation-store.js
 - 对话存为 `run/conversations/{id}.json`
 - 索引 `run/conversations/index.json`
-- `save()` 深拷贝去 `loading/n` 后写入
-- `get()` 加载时清理旧数据残留
+- `save()` 深拷贝去 `branch.loading` / `branch.params.n` 后写入
+- `get()` 加载时清理 transient 字段
 
 ### src/renderer/renderer.js
-- 全部 UI 逻辑（~1880 行）
-- 状态管理、对话列表、消息渲染、输入控制、请求控制、设置
+- 全部 UI 逻辑（~1985 行）
+- 状态管理、对话列表、消息渲染（分支级 text/params/images）、输入控制、请求控制、设置
 
 ### src/renderer/styles.css
 - 深色主题，~1050 行
@@ -68,7 +68,7 @@
 ```
 用户输入 → handleSend()
   → setSending(true) → 按钮变 ■
-  → 创建 turn + branch (loading=true)
+  → 创建 branch（含 text/params/uploadedImages，改写路径不同）
   → saveConv() → renderChat()
   → resolveMainImage() → editImage or generateImage
   → storeImageBatch() → branch.images = [{fileName}]
