@@ -52,13 +52,32 @@ window.App = window.App || {};
   // --- Context menu ---
   ns.showCtxMenu = function (x, y) {
     var menu = dom.ctxMenu;
-    menu.innerHTML = [
-      '<div class="ctx-item" data-action="save">💾 保存到本地</div>',
-      '<div class="ctx-item" data-action="delete">🗑 删除</div>',
-    ].join("");
-    menu.querySelectorAll(".ctx-item").forEach(function (item) {
-      item.addEventListener("click", function () { ns.handleCtxAction(item.dataset.action); });
-    });
+    menu.innerHTML = "";
+
+    // Save — always shown
+    var saveItem = document.createElement("div");
+    saveItem.className = "ctx-item";
+    saveItem.textContent = "💾 保存到本地";
+    saveItem.addEventListener("click", function () { ns.handleCtxAction("save"); });
+    menu.appendChild(saveItem);
+
+    // Delete — only show when allowed
+    if (!ns.isSending()) {
+      var img = state.ctxImg;
+      var turnIndex = state.ctxTurnIndex;
+      var conv = state.activeConv;
+      var turn = conv && conv.turns[turnIndex];
+      var branch = turn && turn.branches[turn.activeBranchIndex];
+      var canDelete = !img || !img.isSelected || !ns.turnHasDownstreamDep(conv, turnIndex);
+      if (canDelete) {
+        var delItem = document.createElement("div");
+        delItem.className = "ctx-item";
+        delItem.textContent = "🗑 删除";
+        delItem.addEventListener("click", function () { ns.handleCtxAction("delete"); });
+        menu.appendChild(delItem);
+      }
+    }
+
     menu.style.left = x + "px";
     menu.style.top = y + "px";
     menu.classList.remove("hidden");
@@ -98,23 +117,21 @@ window.App = window.App || {};
   };
 
   // --- Prompt right-click menu ---
-  ns.showPromptMenu = function (x, y, turnIndex, hasSelected) {
+  ns.showPromptMenu = function (x, y, turnIndex) {
     var menu = dom.ctxMenu;
     menu.innerHTML = "";
 
-    if (!hasSelected) {
-      var conv = state.activeConv;
-      var canDelete = !conv || turnIndex === conv.turns.length - 1 || !ns.turnHasDownstreamDep(conv, turnIndex);
-      if (canDelete) {
-        var del = document.createElement("div");
-        del.className = "ctx-item";
-        del.textContent = "🗑 删除本分支";
-        del.addEventListener("click", function () {
-          ns.hideCtxMenu();
-          ns.handleDeleteBranch(turnIndex);
-        });
-        menu.appendChild(del);
-      }
+    var conv = state.activeConv;
+    var canDelete = !conv || turnIndex === conv.turns.length - 1 || !ns.turnHasDownstreamDep(conv, turnIndex);
+    if (canDelete) {
+      var del = document.createElement("div");
+      del.className = "ctx-item";
+      del.textContent = "🗑 删除本分支";
+      del.addEventListener("click", function () {
+        ns.hideCtxMenu();
+        ns.handleDeleteBranch(turnIndex);
+      });
+      menu.appendChild(del);
     }
 
     var send = document.createElement("div");

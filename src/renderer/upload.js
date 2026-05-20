@@ -25,7 +25,6 @@ window.App = window.App || {};
       state.uploadedImages.push({ id: ns.uid(), path: path });
     });
     ns.renderInputImages();
-    ns.autoSaveDraft();
   };
 
   ns.addUploadedFileData = async function (dataUrl) {

@@ -123,6 +123,8 @@ window.App = window.App || {};
               fromGenerated: true,
               sourceTurnIndex: prevTurnIdx,
             });
+            // Record which branch was active on the source turn
+            state.activeConv.turns[prevTurnIdx].selectedBranchIndex = state.activeConv.turns[prevTurnIdx].activeBranchIndex;
           }
         }
       }

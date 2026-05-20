@@ -17,7 +17,6 @@ state = {
   rewriteMode: false,
   rewriteTurnIndex: -1,
   uploadedImages: [],           // [{ id, path }] — 输入框中待发送的图片
-  sending: false,               // 已废弃，改用 conversationStates
   conversationStates: {},       // { [convId]: { sending: bool } }
   drafts: {},                   // { [convId]: { text, uploadedImages, params } }
   unread: {},                   // { [convId]: { type: 'success'|'error' } }
@@ -66,6 +65,7 @@ state = {
         },
       ],
       activeBranchIndex: 0,
+      selectedBranchIndex: 0,  // 引用发生时的 activeBranchIndex，缺失则历史轮无勾
     },
   ],
 }

@@ -97,6 +97,7 @@ window.App = window.App || {};
 
       ns.renderConvList();
       ns.renderChat();
+      ns.scrollToBottom();
       ns.showChatView();
     } finally {
       _switching = false;

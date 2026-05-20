@@ -87,7 +87,22 @@
 - 所有文档中的 renderer.js 引用更新为模块名
 - 移除死代码：`$`/`$$`/`escapeHtml`/`getLastTurnActiveBranch`/`showAlert`
 
-### 6. 下一次传承触发条件
+### 6. Bug 修复批次（2026-05-20 后续）
+
+**删除保护修复**：
+- `turnHasDownstreamDep` 原检查 `turn.uploadedImages`，但该字段在 `turn.branches[].uploadedImages` 中，导致删除保护从未生效 → 改为遍历所有分支
+- `showPromptMenu` 的 `hasSelected` 守卫导致末轮所有有选中图的分支不可删 → 移除
+- `showCtxMenu` 缺少菜单侧删除权限检查，永远显示"删除" → 加上 `!isSending && (!isSelected || !turnHasDownstreamDep)` 判定
+- 两入口均实现双层保障：菜单侧（是否显示选项）+ 执行侧（是否弹框阻止）
+
+**交互体验修复**：
+- `renderChat` 无条件 `scrollToBottom`，历史中切分支被拽回底部 → 改为调用方按需决定
+- 历史轮选中图检查标记 `selectedBranchIndex`，引用发生时的 `activeBranchIndex` 被记录到源轮的 `selectedBranchIndex`；缺失此字段视为 -1，所有分支无勾；仅匹配分支显示勾
+
+**数据模型新增**：
+- `turn.selectedBranchIndex`：记录引用发生时的 activeBranchIndex，历史轮选中图仅在该分支上显示勾
+
+### 7. 下一次传承触发条件
 
 - agent 自行感知上下文紧张
 - 用户提示"上下文忒长了"

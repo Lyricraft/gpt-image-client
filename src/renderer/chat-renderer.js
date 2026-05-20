@@ -16,7 +16,6 @@ window.App = window.App || {};
     conv.turns.forEach(function (turn, ti) {
       dom.chatMessages.appendChild(ns.renderTurn(turn, ti, ti === lastTurnIndex));
     });
-    ns.scrollToBottom();
   };
 
   ns.renderTurn = function (turn, turnIndex, isLastTurn) {
@@ -39,7 +38,7 @@ window.App = window.App || {};
         grid.className = "image-grid";
         activeBranch.images.forEach(function (img, idx) {
           grid.appendChild(
-            ns.renderImageCard(img, idx === activeBranch.selectedImageIndex, isLastTurn, turnIndex, idx)
+            ns.renderImageCard(img, idx === activeBranch.selectedImageIndex, isLastTurn, turnIndex, idx, turn.activeBranchIndex)
           );
         });
         container.appendChild(grid);
@@ -100,11 +99,8 @@ window.App = window.App || {};
     bubble.addEventListener("contextmenu", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      var t = state.activeConv && state.activeConv.turns[turnIndex];
-      if (!t) return;
-      var br = t.branches[t.activeBranchIndex];
-      var hasSelected = br && br.images && br.images.some(function (i) { return i.isSelected; });
-      ns.showPromptMenu(e.clientX, e.clientY, turnIndex, hasSelected);
+      if (!state.activeConv || !state.activeConv.turns[turnIndex]) return;
+      ns.showPromptMenu(e.clientX, e.clientY, turnIndex);
     });
 
     return bubble;
@@ -160,9 +156,14 @@ window.App = window.App || {};
     return bar;
   };
 
-  ns.renderImageCard = function (img, isSelected, canSelect, turnIndex, imgIndex) {
+  ns.renderImageCard = function (img, isSelected, canSelect, turnIndex, imgIndex, branchIndex) {
+    var conv = state.activeConv;
+    var turn = conv && conv.turns[turnIndex];
+    var selBranchIdx = turn && turn.selectedBranchIndex;
+    var branchOk = selBranchIdx === undefined || selBranchIdx === branchIndex;
+    var showCheck = isSelected && (canSelect || (ns.turnHasDownstreamDep(conv, turnIndex) && branchOk));
     var card = document.createElement("div");
-    card.className = "image-card" + (isSelected ? " selected" : "");
+    card.className = "image-card" + (showCheck ? " selected" : "");
     card.dataset.turnIndex = turnIndex;
     card.dataset.imgIndex = imgIndex;
 
@@ -174,7 +175,7 @@ window.App = window.App || {};
 
     var badge = document.createElement("div");
     badge.className = "img-badge";
-    badge.textContent = isSelected ? "✓" : (imgIndex + 1);
+    badge.textContent = showCheck ? "✓" : (imgIndex + 1);
     card.appendChild(badge);
 
     imgEl.addEventListener("click", function (e) {

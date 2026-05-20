@@ -57,11 +57,14 @@ window.App = window.App || {};
   ns.turnHasDownstreamDep = function (conv, turnIndex) {
     if (!conv) return false;
     for (var i = turnIndex + 1; i < conv.turns.length; i++) {
-      var t = conv.turns[i];
-      if (t.uploadedImages && t.uploadedImages.some(function (u) {
-        return u.fromGenerated && u.sourceTurnIndex === turnIndex;
-      })) {
-        return true;
+      var turn = conv.turns[i];
+      for (var j = 0; j < turn.branches.length; j++) {
+        var branch = turn.branches[j];
+        if (branch.uploadedImages && branch.uploadedImages.some(function (u) {
+          return u.fromGenerated && u.sourceTurnIndex === turnIndex;
+        })) {
+          return true;
+        }
       }
     }
     return false;
@@ -75,10 +78,6 @@ window.App = window.App || {};
       uploadedImages: state.uploadedImages.map(function (i) { return { id: i.id, path: i.path }; }),
       params: Object.assign({}, state.params),
     };
-  };
-
-  ns.autoSaveDraft = function () {
-    ns.saveDraft(state.activeConvId);
   };
 
   ns.loadDraft = function (convId) {

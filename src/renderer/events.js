@@ -32,13 +32,11 @@ window.App = window.App || {};
         ta.value = ta.value.substring(0, start) + "\n" + ta.value.substring(end);
         ta.selectionStart = ta.selectionEnd = start + 1;
         ns.autoResize(ta);
-        ns.autoSaveDraft();
       }
     });
 
     dom.textInput.addEventListener("input", function () {
       ns.autoResize(dom.textInput);
-      ns.autoSaveDraft();
     });
 
     // Upload
