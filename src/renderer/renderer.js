@@ -465,7 +465,7 @@ function renderTurn(turn, turnIndex, isLastTurn) {
   const bubble = document.createElement("div");
   bubble.className = "user-bubble";
 
-  const branchUploaded = activeBranch?.uploadedImages || turn.uploadedImages;
+  const branchUploaded = activeBranch?.uploadedImages;
   if (branchUploaded && branchUploaded.length > 0) {
     const imgRow = document.createElement("div");
     imgRow.className = "user-images";
@@ -487,12 +487,12 @@ function renderTurn(turn, turnIndex, isLastTurn) {
 
   const textEl = document.createElement("div");
   textEl.className = "user-text";
-  textEl.textContent = activeBranch?.text || turn.text || "";
+  textEl.textContent = activeBranch?.text || "";
   bubble.appendChild(textEl);
 
   const meta = document.createElement("div");
   meta.className = "user-meta";
-  const bp = activeBranch?.params || turn.params;
+  const bp = activeBranch?.params;
   meta.textContent = `${bp?.size || ""} ${bp?.quality || ""} ${bp?.output_format || ""}`;
   bubble.appendChild(meta);
 
@@ -673,7 +673,7 @@ async function handleRetry(turnIndex) {
     let result;
     // Resolve main image: uploaded → prev generated → none
     let mainPath = null;
-    const brUploaded = branch.uploadedImages || turn.uploadedImages;
+    const brUploaded = branch.uploadedImages;
     const fileUpload = brUploaded?.find((u) => u.path && !u.fromGenerated);
     const prevRef = brUploaded?.find((u) => u.fromGenerated);
 
@@ -692,8 +692,8 @@ async function handleRetry(turnIndex) {
       );
     }
 
-    const brText = branch.text || turn.text || "";
-    const brParams = branch.params || turn.params;
+    const brText = branch.text || "";
+    const brParams = branch.params;
     if (mainPath) {
       result = await window.electronAPI.editImage(mainPath, brText, {
         size: brParams.size,
@@ -769,10 +769,10 @@ async function handleRewrite(turnIndex) {
   state.rewriteMode = true;
   state.rewriteTurnIndex = turnIndex;
 
-  dom.textInput.value = branch?.text || turn.text || "";
+  dom.textInput.value = branch?.text || "";
   autoResize(dom.textInput);
 
-  const bp = branch?.params || turn.params;
+  const bp = branch?.params;
   if (bp) {
     Object.assign(state.params, bp);
     syncParamsUI();
@@ -780,7 +780,7 @@ async function handleRewrite(turnIndex) {
 
   // Load branch's uploaded images into the input area
   clearUploadedImages();
-  const brUploaded = branch?.uploadedImages || turn.uploadedImages || [];
+  const brUploaded = branch?.uploadedImages || [];
   for (const u of brUploaded) {
     if (u.path) {
       state.uploadedImages.push({ id: uid(), path: u.path });
@@ -992,13 +992,13 @@ async function handleSendToNew(turnIndex) {
 
   // Build draft: prompt + params + uploaded images + prev turn selected image
   const draft = {
-    text: branch?.text || turn.text || "",
+    text: branch?.text || "",
     uploadedImages: [],
-    params: { ...(branch?.params || turn.params) },
+    params: { ...(branch?.params) },
   };
 
   // Copy uploaded images
-  const srcUploaded = (branch?.uploadedImages || turn.uploadedImages);
+  const srcUploaded = (branch?.uploadedImages);
   if (srcUploaded?.length) {
     for (const u of srcUploaded) {
       if (u.path) {
@@ -1422,7 +1422,7 @@ function openUploadLightbox(turnIndex, uploadIndex) {
   const turn = conv?.turns[turnIndex];
   if (!turn) return;
   const branch = turn.branches[turn.activeBranchIndex];
-  const src = (branch?.uploadedImages || turn.uploadedImages);
+  const src = (branch?.uploadedImages);
   if (!src?.length) return;
 
   lbState = {

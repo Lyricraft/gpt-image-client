@@ -45,22 +45,8 @@ function list() {
 function get(id) {
   try {
     const conv = JSON.parse(fs.readFileSync(convFilePath(id), "utf-8"));
-    // Sanitize: clear stale transient state and deprecated fields
+    // Strip transient UI state and deprecated fields
     for (const turn of conv.turns || []) {
-      // Migrate old format: text/params/uploadedImages were at turn level
-      if (turn.text) {
-        for (const branch of turn.branches || []) {
-          if (!branch.text) {
-            branch.text = turn.text;
-            branch.params = { ...turn.params };
-            branch.uploadedImages = [...(turn.uploadedImages || [])];
-          }
-        }
-        delete turn.text;
-        delete turn.params;
-        delete turn.uploadedImages;
-      }
-      // Clean up deprecated fields
       for (const branch of turn.branches || []) {
         delete branch.loading;
         if (branch.params) delete branch.params.n;
@@ -101,19 +87,6 @@ function save(conv) {
 
   // Strip transient UI state and deprecated fields
   for (const turn of clean.turns || []) {
-    // Migrate old format: text/params/uploadedImages at turn level → copy to branches
-    if (turn.text) {
-      for (const branch of turn.branches || []) {
-        if (!branch.text) {
-          branch.text = turn.text;
-          branch.params = { ...turn.params };
-          branch.uploadedImages = [...(turn.uploadedImages || [])];
-        }
-      }
-      delete turn.text;
-      delete turn.params;
-      delete turn.uploadedImages;
-    }
     for (const branch of turn.branches || []) {
       delete branch.loading;
       if (branch.params) delete branch.params.n;
