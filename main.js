@@ -23,6 +23,8 @@ const store = require("./src/main/store");
 const imageService = require("./src/main/image-service");
 const convStore = require("./src/main/conversation-store");
 
+const isDev = process.argv.includes("--dev");
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -35,6 +37,10 @@ function createWindow() {
   });
 
   win.loadFile(path.join(__dirname, "src", "renderer", "index.html"));
+
+  if (isDev) {
+    win.webContents.openDevTools();
+  }
 }
 
 // --- Helpers ---
