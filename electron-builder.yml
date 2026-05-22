@@ -1,0 +1,31 @@
+appId: cn.lyricraft.gpt-image-client
+productName: GPT-Image Client
+copyright: Copyright © 2026 Lyricraft
+
+directories:
+  output: out
+  buildResources: build
+
+files:
+  - main.js
+  - preload.js
+  - package.json
+  - src/**/*
+
+asar: true
+
+extraResources:
+  - from: docs
+    to: docs
+    filter:
+      - "**/*"
+
+win:
+  target:
+    - target: portable
+      arch:
+        - x64
+
+portable:
+  artifactName: "${productName}-${version}-portable.${ext}"
+  unpackDirName: true

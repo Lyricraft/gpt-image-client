@@ -14,14 +14,19 @@ Electron 桌面应用，基于 OpenAI GPT-Image-2 API 的图像生成客户端�
 1. **架构总览（含核心工作流）** → `docs/ARCHITECTURE.md`
 2. **数据模型** → `docs/DATA-MODEL.md`
 3. **IPC 通道** → `docs/IPC.md`
-4. **传承计划** → `docs/SUCCESSION.md`
-5. **GPT-Image-2 API** → `docs/gpt-image-2-api.md`
+4. **构建工作流** → `docs/BUILD.md`
+5. **传承计划** → `docs/SUCCESSION.md`
+6. **GPT-Image-2 API** → `docs/gpt-image-2-api.md`
 
 ## 快速命令
 
 ```bash
 npm start          # 启动应用
+npm run dev        # 开发模式（自动打开 DevTools）
+npm run build      # 构建便携版 zip
 ```
+
+完整构建工作流参见 `docs/BUILD.md`。
 
 ## 关键文件
 

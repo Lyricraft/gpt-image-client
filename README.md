@@ -15,12 +15,6 @@
 ## 使用
 
 ```bash
-# 1. 初始化运行目录（首次使用）
-cp -r run-example run
-
-# 2. 编辑 run/.env，填入 API Key
-
-# 3. 启动
 npm start
 ```
 

@@ -1,21 +1,29 @@
 {
-  "name": "gpt-image",
+  "name": "gpt-image-client",
   "version": "1.0.0",
-  "description": "Electron desktop application for GPT image generation",
+  "description": "GPT-Image Client — Electron desktop application for OpenAI GPT-Image-2 API",
+  "author": "Lyricraft",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev"
+    "dev": "electron . --dev",
+    "build": "electron-builder --config electron-builder.yml --win portable",
+    "dist": "electron-builder --config electron-builder.yml --win portable"
   },
   "keywords": [],
-  "author": "",
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
-    "electron": "^42.1.0"
+    "electron": "^42.1.0",
+    "electron-builder": "^26.8.1"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
     "openai": "^6.38.0"
+  },
+  "build": {
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    }
   }
 }
