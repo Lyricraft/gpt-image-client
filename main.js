@@ -11,7 +11,10 @@ const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 const fs = require("node:fs");
 
-const runDir = path.join(__dirname, "run");
+const isPackaged = app.isPackaged;
+const runDir = isPackaged
+  ? path.join(path.dirname(process.execPath), "run")
+  : path.join(__dirname, "run");
 if (!fs.existsSync(runDir)) {
   fs.mkdirSync(runDir, { recursive: true });
 }
