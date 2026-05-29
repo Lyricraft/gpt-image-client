@@ -20,8 +20,6 @@ if (!fs.existsSync(runDir)) {
 }
 process.chdir(runDir);
 
-require("dotenv").config({ path: path.join(runDir, ".env") });
-
 const store = require("./src/main/store");
 const imageService = require("./src/main/image-service");
 const convStore = require("./src/main/conversation-store");
@@ -300,13 +298,6 @@ app.whenReady().then(() => {
     const filePath = path.join(runDir, "conversations", u.hostname, u.pathname);
     return net.fetch(pathToFileURL(filePath).href);
   });
-
-  if (process.env.OPENAI_API_KEY && !store.get("apiKey")) {
-    store.set("apiKey", process.env.OPENAI_API_KEY);
-  }
-  if (process.env.OPENAI_BASE_URL && !store.get("baseURL")) {
-    store.set("baseURL", process.env.OPENAI_BASE_URL);
-  }
 
   createWindow();
 
