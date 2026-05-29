@@ -25,7 +25,7 @@
 │  main.js (315行) 窗口/IPC/AbortController       │
 │  src/main/                                     │
 │   ├─ image-service.js   OpenAI API 封装          │
-│   ├─ store.js           .env + config.json      │
+│   ├─ store.js           config.json              │
 │   └─ conversation-store.js  对话文件 CRUD        │
 └────────────────────────────────────────────────┘
 ```

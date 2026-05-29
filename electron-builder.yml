@@ -14,19 +14,9 @@ files:
 
 asar: true
 
-extraResources:
-  - from: docs
-    to: docs
-    filter:
-      - "**/*"
-
 win:
   signAndEditExecutable: false
   target:
-    - target: portable
+    - target: dir
       arch:
         - x64
-
-portable:
-  artifactName: "${productName}-${version}-portable.${ext}"
-  unpackDirName: true

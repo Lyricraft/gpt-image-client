@@ -7,8 +7,8 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "build": "electron-builder --config electron-builder.yml --win portable",
-    "dist": "electron-builder --config electron-builder.yml --win portable"
+    "build": "node -e \"require('fs').readdirSync('out').forEach(f=>require('fs').rmSync('out/'+f,{recursive:true,force:true}))\" && electron-builder --config electron-builder.yml --win dir && node scripts/zip-dist.js",
+    "dist": "npm run build"
   },
   "keywords": [],
   "license": "MIT",

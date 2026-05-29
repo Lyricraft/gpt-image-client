@@ -81,7 +81,7 @@ state = {
 | 上传副本 | `run/conversations/{id}/uploaded/{ts}.png` | 发送时从原始路径复制 |
 | 临时文件 | `run/tmp/{ts}.png` | edit 操作中转 |
 | 用户配置 | `run/config.json` | 保存设置时 |
-| 环境变量 | `run/.env` | 启动时读取 |
+| 环境变量 | `run/.env` | 不再使用，已移除 |
 
 ## 存盘清理
 
