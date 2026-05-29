@@ -215,10 +215,8 @@ window.App = window.App || {};
 
       branch.loading = false;
 
-      // --- Handle abort ---
+      // --- Handle abort — keep branch (no images), user can retry ---
       if (result.aborted) {
-        var idx = turn.branches.indexOf(branch);
-        if (idx >= 0) turn.branches.splice(idx, 1);
         if (state.activeConvId === conv.id) {
           ns.saveConv();
           ns.renderChat();
