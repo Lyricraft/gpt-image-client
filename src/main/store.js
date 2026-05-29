@@ -1,9 +1,8 @@
-const { app } = require("electron");
 const fs = require("node:fs");
 const path = require("node:path");
 
 function getRunDir() {
-  return path.join(app.getAppPath(), "run");
+  return process.cwd();
 }
 
 function getConfigPath() {

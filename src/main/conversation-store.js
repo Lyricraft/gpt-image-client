@@ -2,7 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 
-const CONV_DIR = path.join(__dirname, "..", "..", "run", "conversations");
+const CONV_DIR = path.join(process.cwd(), "conversations");
 
 function ensureDir() {
   if (!fs.existsSync(CONV_DIR)) {

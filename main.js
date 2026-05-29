@@ -13,7 +13,7 @@ const fs = require("node:fs");
 
 const isPackaged = app.isPackaged;
 const runDir = isPackaged
-  ? path.join(path.dirname(process.execPath), "run")
+  ? app.getPath("userData")
   : path.join(__dirname, "run");
 if (!fs.existsSync(runDir)) {
   fs.mkdirSync(runDir, { recursive: true });
