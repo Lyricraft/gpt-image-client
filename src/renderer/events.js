@@ -192,6 +192,10 @@ window.App = window.App || {};
     dom.lbNext.addEventListener("click", function () { ns.lbNavigate(1); });
     dom.lbSelectBtn.addEventListener("click", ns.lbSelectImage);
     dom.btnSaveImage.addEventListener("click", ns.saveLightboxImage);
+    dom.lightboxImg.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+      ns.copyLightboxImage();
+    });
     document.addEventListener("keydown", function (e) {
       if (dom.lightbox.classList.contains("hidden")) return;
       if (e.key === "ArrowLeft") ns.lbNavigate(-1);

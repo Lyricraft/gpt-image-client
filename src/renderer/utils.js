@@ -148,4 +148,31 @@ window.App = window.App || {};
     state.uploadedImages = [];
     ns.renderInputImages();
   };
+
+  // --- Clipboard ---
+  ns.copyBase64ToClipboard = async function (b64) {
+    try {
+      var chars = atob(b64);
+      var nums = new Array(chars.length);
+      for (var i = 0; i < chars.length; i++) nums[i] = chars.charCodeAt(i);
+      var blob = new Blob([new Uint8Array(nums)], { type: "image/png" });
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      ns.showToast("已复制到剪贴板", "success");
+    } catch (err) {
+      ns.showToast("复制失败: " + err.message, "error");
+    }
+  };
+
+  ns.getImgBase64 = async function (img) {
+    if (img.b64_json) return img.b64_json;
+    if (img.fileName && state.activeConvId) {
+      var r = await window.electronAPI.loadImageBase64(state.activeConvId, img.fileName);
+      if (r.success) return r.base64;
+    }
+    if (img.path) {
+      var r = await window.electronAPI.readFileBase64(img.path);
+      if (r.success) return r.base64;
+    }
+    return null;
+  };
 })(window.App);

@@ -61,6 +61,20 @@ window.App = window.App || {};
     saveItem.addEventListener("click", function () { ns.handleCtxAction("save"); });
     menu.appendChild(saveItem);
 
+    // Copy
+    var copyItem = document.createElement("div");
+    copyItem.className = "ctx-item";
+    copyItem.textContent = "📋 复制";
+    copyItem.addEventListener("click", function () { ns.handleCtxAction("copy"); });
+    menu.appendChild(copyItem);
+
+    // Send to new
+    var sendItem = document.createElement("div");
+    sendItem.className = "ctx-item";
+    sendItem.textContent = "✉ 发送到新对话";
+    sendItem.addEventListener("click", function () { ns.handleCtxAction("sendtonew"); });
+    menu.appendChild(sendItem);
+
     // Delete — only show when allowed
     if (!ns.isSending()) {
       var img = state.ctxImg;
@@ -111,6 +125,38 @@ window.App = window.App || {};
       if (b64) {
         await window.electronAPI.saveImageDialog(b64, "gpt-image-" + Date.now() + ".png");
       }
+    } else if (action === "copy") {
+      var b64 = await ns.getImgBase64(img);
+      if (b64) {
+        await ns.copyBase64ToClipboard(b64);
+      } else {
+        ns.showToast("复制失败: 无法读取图片数据", "error");
+      }
+    } else if (action === "sendtonew") {
+      var tempPath = await ns.getImageTempPath(img, state.activeConvId);
+      if (!tempPath) { ns.showToast("无法读取图片", "error"); return; }
+
+      var newConv = await window.electronAPI.createConversation();
+      ns.saveDraft(state.activeConvId);
+      state.conversations.unshift({
+        id: newConv.id, title: newConv.title,
+        createdAt: newConv.createdAt, updatedAt: newConv.updatedAt,
+      });
+      state.activeConvId = newConv.id;
+      state.activeConv = newConv;
+      state.rewriteMode = false;
+      state.rewriteTurnIndex = -1;
+      delete state._convCache[newConv.id];
+      state.drafts[newConv.id] = {
+        text: "",
+        uploadedImages: [{ id: ns.uid(), path: tempPath }],
+        params: {},
+      };
+      ns.loadDraft(newConv.id);
+      ns.renderConvList();
+      ns.renderChat();
+      ns.showChatView();
+      dom.textInput.focus();
     } else if (action === "delete") {
       await ns.deleteImage(turnIndex, imgIndex);
     }

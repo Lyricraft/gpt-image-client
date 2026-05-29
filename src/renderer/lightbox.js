@@ -123,4 +123,14 @@ window.App = window.App || {};
       await window.electronAPI.saveImageDialog(b64, "gpt-image-" + Date.now() + ".png");
     }
   };
+  ns.copyLightboxImage = async function () {
+    var entry = lbState.images[lbState.index];
+    if (!entry) return;
+    var b64 = await ns.getImgBase64(entry.img);
+    if (b64) {
+      await ns.copyBase64ToClipboard(b64);
+    } else {
+      ns.showToast("复制失败: 无法读取图片数据", "error");
+    }
+  };
 })(window.App);
