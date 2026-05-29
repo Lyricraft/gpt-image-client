@@ -191,10 +191,32 @@
 4. switchConversation(newConvId) → loadDraft() 自动填入
 ```
 
+### 对话切换与内存缓存
+
+入口：`switchConversation()`（conversations.js 模块）
+
+切换对话时：
+1. 当前对话缓存到 `state._convCache[convId]`（含 `loading` 等瞬态字段）
+2. 目标对话优先从缓存读取，缓存未命中则从磁盘加载
+3. 磁盘加载的数据不包含 `loading`（`get()` 会剥除）
+
+```
+切换前 → saveDraft() → _convCache[oldId] = activeConv
+     → activeConvId = newId
+     → activeConv = _convCache[newId] || getConversation(newId)
+     → renderChat()
+```
+
+缓存在以下情况清理：
+- 对话被删除（`deleteConversation`）
+- 应用重启（内存重置）
+
+这样就避免 loading 等动态字段触碰到磁盘 IO。
+
 ### 请求独立管理
 
 - `state.conversationStates[convId].sending` 独立管理
-- 切换对话时：saveDraft + loadDraft + 更新按钮状态
+- 切换对话时：saveDraft + _convCache → loadDraft + 恢复按钮
 - API 完成后：检查 `state.activeConvId === conv.id`
   - 用户未切走 → 正常渲染
   - 已切走 → IPC 保存 conv + convList 显示 unread dot

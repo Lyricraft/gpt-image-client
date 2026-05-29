@@ -63,8 +63,15 @@ window.App = window.App || {};
       ns.saveDraft(state.activeConvId);
       ns.cancelRewrite();
 
+      // Cache current conv to preserve transient state (loading, etc.)
+      if (state.activeConvId && state.activeConv) {
+        if (!state._convCache) state._convCache = {};
+        state._convCache[state.activeConvId] = state.activeConv;
+      }
+
       state.activeConvId = id;
-      state.activeConv = await window.electronAPI.getConversation(id);
+      state.activeConv = state._convCache && state._convCache[id]
+        || await window.electronAPI.getConversation(id);
       state.rewriteMode = false;
       state.rewriteTurnIndex = -1;
 
@@ -138,6 +145,7 @@ window.App = window.App || {};
     delete state.drafts[id];
     delete state.conversationStates[id];
     delete state.unread[id];
+    if (state._convCache) delete state._convCache[id];
     if (state._activeRequestConvId === id) {
       state._activeRequestConvId = null;
     }
