@@ -13,12 +13,24 @@ const fs = require("node:fs");
 
 const isPackaged = app.isPackaged;
 const runDir = isPackaged
-  ? app.getPath("userData")
+  ? path.dirname(app.getPath("exe"))
   : path.join(__dirname, "run");
 if (!fs.existsSync(runDir)) {
   fs.mkdirSync(runDir, { recursive: true });
 }
 process.chdir(runDir);
+
+// Init data files if missing
+const convDir = path.join(runDir, "conversations");
+if (!fs.existsSync(convDir)) {
+  fs.mkdirSync(convDir, { recursive: true });
+}
+["config.json", "conversations/index.json"].forEach((f) => {
+  const fp = path.join(runDir, f);
+  if (!fs.existsSync(fp)) {
+    fs.writeFileSync(fp, f.endsWith("index.json") ? "[]" : "{}", "utf-8");
+  }
+});
 
 const store = require("./src/main/store");
 const imageService = require("./src/main/image-service");

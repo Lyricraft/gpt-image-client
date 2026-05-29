@@ -36,7 +36,11 @@ Main Process
 
 ## 数据
 
-所有数据存储在 `run/` 目录：
+运行时数据存储在程序所在目录：
+- **开发模式**：`run/` 目录
+- **打包模式**：exe 所在目录
 
-- `run/config.json` — API 提供方配置
-- `run/conversations/` — 对话数据与图片文件
+目录结构：
+
+- `config.json` — API 提供方配置
+- `conversations/` — 对话数据与图片文件
