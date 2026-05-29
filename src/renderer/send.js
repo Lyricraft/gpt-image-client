@@ -22,6 +22,7 @@ window.App = window.App || {};
     } else if (state._activeRequestConvId === id) {
       state._activeRequestConvId = null;
     }
+    ns.renderConvList();
   };
 
   // --- Stop ---

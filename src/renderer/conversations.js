@@ -29,13 +29,8 @@ window.App = window.App || {};
       title.textContent = c.title;
       div.appendChild(title);
 
-      var unread = state.unread[c.id];
-      if (unread) {
-        var dot = document.createElement("span");
-        dot.className = "unread-dot " + unread.type;
-        dot.textContent = unread.type === "success" ? "✓" : "✗";
-        div.appendChild(dot);
-      }
+      var slot = document.createElement("div");
+      slot.className = "conv-item-end";
 
       var del = document.createElement("button");
       del.className = "conv-item-del";
@@ -45,7 +40,22 @@ window.App = window.App || {};
         e.stopPropagation();
         ns.deleteConversation(c.id);
       });
-      div.appendChild(del);
+      slot.appendChild(del);
+
+      var convState = state.conversationStates[c.id];
+      var unread = state.unread[c.id];
+      if (convState && convState.sending) {
+        var dot = document.createElement("span");
+        dot.className = "unread-dot sending";
+        slot.appendChild(dot);
+      } else if (unread) {
+        var dot = document.createElement("span");
+        dot.className = "unread-dot " + unread.type;
+        dot.textContent = unread.type === "success" ? "✓" : "✗";
+        slot.appendChild(dot);
+      }
+
+      div.appendChild(slot);
 
       div.addEventListener("click", function () { ns.switchConversation(c.id); });
       dom.convList.appendChild(div);

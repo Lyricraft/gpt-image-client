@@ -106,19 +106,39 @@ body {
   white-space: nowrap;
 }
 
-.conv-item .conv-item-del {
+.conv-item-end {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.conv-item-end .conv-item-del,
+.conv-item-end .unread-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.conv-item-end .conv-item-del {
   opacity: 0;
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
   font-size: 16px;
-  padding: 0 4px;
+  padding: 0;
   line-height: 1;
 }
 
-.conv-item:hover .conv-item-del {
+.conv-item:hover .conv-item-end .conv-item-del {
   opacity: 1;
+}
+
+.conv-item:hover .conv-item-end .unread-dot {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .conv-item .conv-item-del:hover {
@@ -1006,6 +1026,13 @@ body {
 .unread-dot.error {
   background: var(--red);
   color: #fff;
+}
+
+.unread-dot.sending {
+  border: 2px solid #b8860b;
+  background: transparent;
+  width: 14px;
+  height: 14px;
 }
 
 /* === Branch nav arrows === */

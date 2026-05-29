@@ -221,8 +221,19 @@
   - 用户未切走 → 正常渲染
   - 已切走 → IPC 保存 conv + convList 显示 unread dot
 
-### 未读气泡
+### 状态指示器
 
-- API 完成/失败时，若用户在其他对话 → `state.unread[convId] = { type }`
-- 对话列表右侧显示绿✓ / 红✗
-- 切换过去时立即清除
+对话列表右侧（与删除键同一槽位，通过绝对定位叠放）显示：
+
+| 状态 | 图标 | 条件 |
+|------|------|------|
+| 生成中 | 暗黄空心圆 | `conversationStates[convId].sending === true` |
+| 成功 | 绿 ✓ | `unread[convId].type === "success"` |
+| 失败 | 红 ✗ | `unread[convId].type === "error"` |
+
+hover 时状态指示器隐藏（`opacity: 0` + `pointer-events: none`），删除键显示。
+由于 sending 和 unread 不会同时为 true（生成结束后才设 unread），二者互斥。
+
+切换对话时：
+- sending 指示器 → 保留（缓存中有 loading 状态）
+- unread dot → 清除 `state.unread[convId]` 并重渲染列表
