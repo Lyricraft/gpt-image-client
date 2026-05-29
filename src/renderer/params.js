@@ -55,6 +55,8 @@ window.App = window.App || {};
     dom.customSizeGroup.classList.toggle("hidden", isPreset);
     dom.btnToggleSizeMode.textContent = isPreset ? "📐" : "✏";
     dom.btnToggleSizeMode.title = isPreset ? "切换到自定义" : "切换到预设";
+    dom.btnToggleOrientation.textContent = isPreset ? (ns.isLandscape(state.params.ratio) ? "↔" : "↕") : "⤢";
+    dom.btnToggleOrientation.title = isPreset ? (ns.isLandscape(state.params.ratio) ? "切换到竖版" : "切换到横版") : "互换宽高";
   };
 
   ns.syncParamsUI = function () {
@@ -68,6 +70,7 @@ window.App = window.App || {};
     dom.paramN.value = state.params.n;
     ns.syncSizeModeUI();
     ns.updateSizePreview();
+    ns.updateSizeStatus();
   };
 
   ns.readParamsFromUI = function () {
@@ -81,6 +84,51 @@ window.App = window.App || {};
     state.params.n = parseInt(dom.paramN.value, 10) || 1;
     ns.syncSizeModeUI();
     ns.updateSizePreview();
+    ns.updateSizeStatus();
     sessionStorage.setItem("params", JSON.stringify(state.params));
+  };
+
+  // --- Custom size validation ---
+  var SIZE_MIN = 64, SIZE_MAX = 8192;
+
+  ns.validateCustomSize = function (w, h) {
+    if (w < SIZE_MIN || w > SIZE_MAX || h < SIZE_MIN || h > SIZE_MAX) {
+      return { ok: false, reason: "out-of-range" };
+    }
+    if (w % 64 !== 0 || h % 64 !== 0) {
+      return { ok: false, reason: "not-multiple" };
+    }
+    return { ok: true };
+  };
+
+  ns.updateSizeStatus = function () {
+    var el = dom.sizeStatus;
+    if (!el || state.params.sizeMode !== "custom") { if (el) el.className = "size-status"; return; }
+    var w = parseInt(dom.paramWidth.value, 10);
+    var h = parseInt(dom.paramHeight.value, 10);
+    if (isNaN(w) || isNaN(h) || w < SIZE_MIN || w > SIZE_MAX || h < SIZE_MIN || h > SIZE_MAX) {
+      el.className = "size-status invalid";
+      el.textContent = "✗";
+      el.title = "尺寸超出 64-8192 范围";
+      return;
+    }
+    if (w % 64 !== 0 || h % 64 !== 0) {
+      el.className = "size-status warn";
+      el.textContent = "➤";
+      el.title = "不符合 64 的倍数，点击修正";
+      return;
+    }
+    el.className = "size-status valid";
+    el.textContent = "✓";
+    el.title = "";
+  };
+
+  ns.fixCustomSize = function () {
+    var w = parseInt(dom.paramWidth.value, 10) || 1024;
+    var h = parseInt(dom.paramHeight.value, 10) || 1024;
+    dom.paramWidth.value = Math.min(SIZE_MAX, Math.max(SIZE_MIN, Math.round(w / 64) * 64));
+    dom.paramHeight.value = Math.min(SIZE_MAX, Math.max(SIZE_MIN, Math.round(h / 64) * 64));
+    ns.readParamsFromUI();
+    ns.updateSizeStatus();
   };
 })(window.App);

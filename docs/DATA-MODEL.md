@@ -11,7 +11,7 @@ state = {
   params: {                     // 当前生成参数
     sizeMode: 'preset'|'custom',
     ratio: '1:1', resolution: '1k',
-    customWidth: 1024, customHeight: 1024,
+    customWidth: 1024, customHeight: 1024,  // 自定义模式：64-8192，须为 64 的倍数
     quality: 'medium', output_format: 'png', n: 1,
   },
   rewriteMode: false,

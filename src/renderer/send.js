@@ -72,6 +72,15 @@ window.App = window.App || {};
       return;
     }
 
+    // Validate custom size
+    if (state.params.sizeMode === "custom") {
+      var v = ns.validateCustomSize(state.params.customWidth, state.params.customHeight);
+      if (!v.ok) {
+        ns.showToast("尺寸需在 64-8192 范围内且为 64 的倍数", "error");
+        return;
+      }
+    }
+
     // If not first turn, no uploaded images, and last branch is empty → prompt
     var lastTurn = ns.getLastTurn();
     var hasUploads = state.uploadedImages.length > 0;

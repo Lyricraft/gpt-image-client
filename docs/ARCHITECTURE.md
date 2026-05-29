@@ -66,7 +66,7 @@
 | `events.js` | 事件绑定、`init()` 初始化入口 |
 | `state.js` | 全局状态对象、DOM 引用、常量 |
 | `utils.js` | 工具函数、图片辅助、草稿管理、持久化、剪贴板 |
-| `params.js` | 尺寸预设、参数计算、UI 同步 |
+| `params.js` | 尺寸预设、参数计算、UI 同步、自定义尺寸校验与修正 |
 | `ui.js` | Toast、Alert、Context Menu（保存/复制/发到新对话/删除） |
 | `providers.js` | 提供方列表渲染 |
 | `upload.js` | 图片上传、粘贴、拖拽 |

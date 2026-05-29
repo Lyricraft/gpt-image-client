@@ -54,7 +54,7 @@
           </div>
 
           <!-- Params panel -->
-          <div id="paramsPanel" class="params-panel hidden">
+          <div id="paramsPanel" class="params-panel">
             <div class="params-row">
               <div class="params-size-group">
                 <button id="btnToggleSizeMode" class="size-mode-btn" title="切换尺寸模式">📐</button>
@@ -82,7 +82,8 @@
                   <input type="number" id="paramWidth" value="1024" min="64" max="8192" />
                   <span class="size-sep">×</span>
                   <input type="number" id="paramHeight" value="1024" min="64" max="8192" />
-                  <span class="size-note">64-8192 px</span>
+                  <span id="sizeStatus" class="size-status"></span>
+                  <span class="size-note">64-8192px 64n</span>
                 </div>
               </div>
               <label>质量 <select id="paramQuality">

@@ -75,7 +75,7 @@ window.App = window.App || {};
       "btnSaveProvider", "prefTimeout", "btnSavePrefs",
       "paramQuality", "paramFormat", "paramN",
       "paramRatio", "paramResolution", "sizePreview",
-      "paramWidth", "paramHeight", "presetSizeGroup", "customSizeGroup",
+      "paramWidth", "paramHeight", "sizeStatus", "presetSizeGroup", "customSizeGroup",
       "btnToggleSizeMode", "btnToggleOrientation",
       "ctxMenu", "alertModal", "alertTitle", "alertMsg", "alertOk", "alertCancel",
       "lbPrev", "lbNext", "lbCounter", "lbSelectBtn",

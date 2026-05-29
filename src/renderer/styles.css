@@ -560,6 +560,30 @@ body {
   color: var(--text-muted);
 }
 
+.size-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  cursor: default;
+  flex-shrink: 0;
+}
+
+.size-status.valid {
+  color: var(--green);
+}
+
+.size-status.invalid {
+  color: var(--red);
+}
+
+.size-status.warn {
+  color: #b8860b;
+  cursor: pointer;
+}
+
 /* Input images */
 .input-images {
   display: flex;

@@ -110,22 +110,35 @@ window.App = window.App || {};
       ns.readParamsFromUI();
     });
     dom.btnToggleOrientation.addEventListener("click", function () {
-      var next = ns.RATIO_MAP[state.params.ratio];
-      if (next) {
-        state.params.ratio = next;
+      if (state.params.sizeMode === "custom") {
+        var w = dom.paramWidth.value;
+        dom.paramWidth.value = dom.paramHeight.value;
+        dom.paramHeight.value = w;
+        ns.readParamsFromUI();
       } else {
-        ns._orientLand = !ns._orientLand;
+        var next = ns.RATIO_MAP[state.params.ratio];
+        if (next) {
+          state.params.ratio = next;
+        } else {
+          ns._orientLand = !ns._orientLand;
+        }
+        ns.syncParamsUI();
+        ns.readParamsFromUI();
       }
-      ns.syncParamsUI();
-      ns.readParamsFromUI();
     });
     dom.paramRatio.addEventListener("change", ns.readParamsFromUI);
     dom.paramResolution.addEventListener("change", ns.readParamsFromUI);
-    dom.paramWidth.addEventListener("change", ns.readParamsFromUI);
-    dom.paramHeight.addEventListener("change", ns.readParamsFromUI);
+    dom.paramWidth.addEventListener("change", function () { ns.readParamsFromUI(); ns.updateSizeStatus(); });
+    dom.paramHeight.addEventListener("change", function () { ns.readParamsFromUI(); ns.updateSizeStatus(); });
+    dom.paramWidth.addEventListener("input", ns.updateSizeStatus);
+    dom.paramHeight.addEventListener("input", ns.updateSizeStatus);
     dom.paramQuality.addEventListener("change", ns.readParamsFromUI);
     dom.paramFormat.addEventListener("change", ns.readParamsFromUI);
     dom.paramN.addEventListener("change", ns.readParamsFromUI);
+
+    dom.sizeStatus.addEventListener("click", function () {
+      if (dom.sizeStatus.classList.contains("warn")) ns.fixCustomSize();
+    });
 
     // New conversation
     dom.btnNewConv.addEventListener("click", ns.newConversation);
@@ -276,6 +289,7 @@ window.App = window.App || {};
       if (saved) Object.assign(state.params, saved);
     } catch (e) { /* ignore */ }
     ns.syncParamsUI();
+    ns.updateSizeStatus();
 
     await ns.loadProviders();
     await ns.loadConversations();
